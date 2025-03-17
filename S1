@@ -1,0 +1,121 @@
+#include<iostream>
+using namespace std;
+struct Prod
+{
+    string nom;
+    int cant;
+    double prec;
+}inv[100];
+struct Ped
+{
+    string cli;
+    string prod;
+    int cant;
+    bool listo;
+}ped[100];
+
+int tProd=0;
+int tPed=0;
+double tVent=0;
+
+void agrProd(string nom,int cant,double prec)
+{
+    inv[tProd].nom=nom;
+    inv[tProd].cant=cant;
+    inv[tProd].prec=prec;
+    tProd=tProd+ 1;
+}
+void venProd(string nom,int cant)
+{
+    for(int i=0;i<tProd;i++)
+    {
+        if(inv[i].nom==nom&&inv[i].cant>=cant)
+        {
+            inv[i].cant=inv[i].cant-cant;
+            tVent=tVent+(cant*inv[i].prec);
+            return;
+        }
+    }
+}
+void agrPed(string cli,string prod,int cant)
+{
+    ped[tPed].cli=cli;
+    ped[tPed].prod=prod;
+    ped[tPed].cant=cant;
+    ped[tPed].listo=false;
+    tPed=tPed+ 1;
+}
+void marcPedListo(string cli)
+{
+    for(int i=0;i<tPed;i++)
+    {
+        if(ped[i].cli==cli)
+        {
+            ped[i].listo=true;
+            return;
+        }
+    }
+}
+void genRep()
+{
+    cout<<"Reporte de inventario;\n";
+    for(int i=0;i<tProd;i++)
+    {
+        cout<<inv[i].nom<<" - Cantidad: "
+            <<inv[i].cant<<" - Precio: "
+            <<inv[i].prec<<"\n";
+    }
+    cout<<"\nTotal Ventas: "<<tVent<<"\n";
+}
+void mostMenu()
+{
+    int opc;
+    string nom,cli,prod;
+    int cant;
+    double prec;
+    do
+    {
+        cout<<"\n1. Agregar producto\n";
+        cout<<"2. Vender producto\n";
+        cout<<"3. Registrar pedido\n";
+        cout<<"4. Marcar pedido como listo\n";
+        cout<<"5. Generar reporte\n";
+        cout<<"6. Salir\n";
+        cout<<"Seleccione: ";
+        cin>>opc;
+        if(opc==1)
+        {
+            cout<<"Nombre: ";cin>>nom;
+            cout<<"Cantidad: ";cin>>cant;
+            cout<<"Precio: ";cin>>prec;
+            agrProd(nom,cant,prec);
+        }
+        else if(opc==2)
+        {
+            cout<<"Nombre: ";cin>>nom;
+            cout<<"Cantidad: ";cin>>cant;
+            venProd(nom,cant);
+        }
+        else if(opc==3)
+        {
+            cout<<"Cliente: ";cin>>cli;
+            cout<<"Producto: ";cin>>prod;
+            cout<<"Cantidad: ";cin>>cant;
+            agrPed(cli,prod,cant);
+        }
+        else if(opc==4)
+        {
+            cout<<"Cliente: ";cin>>cli;
+            marcPedListo(cli);
+        }
+        else if(opc==5)
+        {
+            genRep();
+        }
+    }while(opc!=6);
+}
+int main()
+{
+    mostMenu();
+    return 0;
+}
