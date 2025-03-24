@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+class Auto 
+{
+public:
+    int posicion = 0;
+    void avanzar(int avance) 
+    {
+        posicion=posicion+avance;
+    }
+};
+int main() 
+{
+    srand(time(0));
+    Auto jugador, computadora;
+    int distancia, dificultad;
+    cout<<"Ingrese la distancia de la carrera: ";
+    cin>>distancia;
+    cout<<"Ingrese la dificultad (1-Fácil, 2-Normal, 3-Difícil): ";
+    cin>>dificultad;
+    int maxJugador, maxComputadora;
+    if (dificultad==1)
+    {
+        maxJugador=10;
+        maxComputadora=7;
+    }
+    else if (dificultad==2)
+    {
+        maxJugador=10;
+        maxComputadora=9;
+    }
+    else
+    {
+        maxJugador=8;
+        maxComputadora=10;
+    }
+    while (jugador.posicion<distancia && computadora.posicion<distancia) 
+    {
+        jugador.avanzar(rand()%maxJugador + 1);
+        computadora.avanzar(rand()%maxComputadora + 1);
+    }
+    cout<<"Jugador: "<<jugador.posicion<<" | Computadora: "<<computadora.posicion<<endl;
+    if (jugador.posicion>=distancia && computadora.posicion>=distancia)
+    {
+        cout<<"Empate"<<endl;
+    }
+    else if (jugador.posicion>=distancia)
+    {
+        cout<<"Gano el jugador"<<endl;
+    }
+    else
+    {
+        cout<<"Gano la computadora"<<endl;
+    }
+    return 0;
+}
