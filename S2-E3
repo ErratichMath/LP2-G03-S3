@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+
+class Avion {
+public:
+    int combustible;
+
+    void cargarCombustible(int cantidad) 
+    {
+        combustible=cantidad;
+    }
+
+    bool tieneCombustibleSuficiente(int duracion) 
+    {
+        return combustible>=duracion;
+    }
+};
+
+class Mision {
+public:
+    string destino;
+    int duracion;
+    int tripulacion;
+
+    void planificar(string d, int t, int tr) 
+    {
+        destino=d;
+        duracion=t;
+        tripulacion=tr;
+    }
+    void simularMision(Avion &avion) 
+    {
+        cout<<"Destino: "<<destino<<endl;
+        cout<<"Duración: "<<duracion<<" horas"<<endl;
+        cout<<"Tripulación: "<<tripulacion<<" personas"<<endl;
+
+        if (avion.tieneCombustibleSuficiente(duracion))
+        {
+            cout<<"Misión completada con éxito."<<endl;
+        }
+        else
+        {
+            cout<<"Fallo en la misión: Combustible insuficiente."<<endl;
+        }
+    }
+};
+int main() 
+{
+    Avion avion;
+    Mision mision;
+    string destino;
+    int duracion, tripulacion, combustible;
+
+    cout<<"Ingrese destino: ";
+    cin>>destino;
+    cout<<"Ingrese duración en horas: ";
+    cin>>duracion;
+    cout<<"Ingrese cantidad de tripulación: ";
+    cin>>tripulacion;
+    cout<<"Ingrese cantidad de combustible disponible: ";
+    cin>>combustible;
+    mision.planificar(destino, duracion, tripulacion);
+    avion.cargarCombustible(combustible);
+    mision.simularMision(avion);
+    return 0;
+}
