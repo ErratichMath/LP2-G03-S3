@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Inventario 
+{
+public:
+    vector<string> disponibles;
+    vector<string> agotados;
+    vector<string> facturas;
+    void agregarProducto(string producto) 
+    {
+        disponibles.push_back(producto);
+    }
+    void actualizarInventario(string producto) 
+    {
+        for (int i=0; i<disponibles.size(); i++) 
+        {
+            if (disponibles[i]==producto) 
+            {
+                agotados.push_back(producto);
+                disponibles.erase(disponibles.begin()+i);
+                cout<<producto<<" agregado a productos agotados\n";
+                return;
+            }
+        }
+        cout<<"El producto no está\n";
+    }
+    void realizarPedido(string producto, string cliente) 
+    {
+        for (int i=0; i<disponibles.size(); i++) 
+        {
+            if (disponibles[i]==producto) 
+            {
+                facturas.push_back(cliente + " compró " + producto);
+                actualizarInventario(producto);
+                return;
+            }
+        }
+        cout<<"No disponible: "<<producto<<endl;
+    }
+    void mostrar()
+    {
+        cout<<"Disponibles:\n";
+        for (int i=0; i<disponibles.size(); i++) 
+        {
+            cout<<"- "<<disponibles[i]<<endl;
+        }
+
+        cout<<"Agotados:\n";
+        for (int i=0; i<agotados.size(); i++) 
+        {
+            cout<<"- "<<agotados[i]<<endl;
+        }
+
+        cout<<"Facturas:\n";
+        for (int i=0; i<facturas.size(); i++) 
+        {
+            cout<<facturas[i]<<endl;
+        }
+    }
+};
+int main() {
+    Inventario inv;
+    string producto, cliente;
+    int opcion;
+
+    while (true) 
+    {
+        cout<<"\n1. Agregar producto\n2. Actualizar inventario\n3. Realizar pedido\n4. Mostrar inventario\n5. Salir\nOpción: ";
+        cin>>opcion;
+
+        if (opcion==1) 
+        {
+            cout<<"Producto a agregar: ";
+            cin>>producto;
+            inv.agregarProducto(producto);
+        } 
+        else if (opcion==2) 
+        {
+            cout<<"Producto a actualizar: ";
+            cin>>producto;
+            inv.actualizarInventario(producto);
+        } 
+        else if (opcion==3) 
+        {
+            cout<<"Cliente: ";
+            cin>>cliente;
+            cout<<"Producto a pedir: ";
+            cin>>producto;
+            inv.realizarPedido(producto, cliente);
+        } 
+        else if (opcion==4) 
+        {
+            inv.mostrar();
+        } 
+        else if (opcion==5) 
+        {
+            break;
+        } 
+        else 
+        {
+            cout<<"Opción no válida.\n";
+        }
+    }
+    return 0;
+}
