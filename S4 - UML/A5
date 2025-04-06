@@ -1,0 +1,42 @@
+#include <iostream>
+using namespace std;
+
+class Componente {
+    string nombre;
+public:
+    Componente(string n) : nombre(n) {}
+    string getNombre() { return nombre; }
+};
+
+class Contenedor {
+    Componente* componentes[10];
+    int cantidad;
+public:
+    Contenedor() : cantidad(0) {}
+
+    void agregar(Componente* c) {
+        if (cantidad < 10) {
+            componentes[cantidad++] = c;
+        }
+    }
+
+    void mostrar() {
+        cout << "Componentes:\n";
+        for (int i = 0; i < cantidad; i++) {
+            cout << "- " << componentes[i]->getNombre() << endl;
+        }
+    }
+};
+
+int main() {
+    Componente c1("Motor");
+    Componente c2("Rueda");
+
+    Contenedor cont;
+    cont.agregar(&c1);
+    cont.agregar(&c2);
+
+    cont.mostrar();
+
+    return 0;
+}
