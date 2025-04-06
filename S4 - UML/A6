@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+
+class Parte {
+    string nombre;
+public:
+    Parte(string n) : nombre(n) {}
+    string getNombre() { return nombre; }
+};
+
+class Todo {
+    Parte* parte;
+public:
+    Todo(string n) {
+        parte = new Parte(n);
+    }
+
+    ~Todo() {
+        delete parte;
+    }
+
+    void mostrar() {
+        cout << "Parte: " << parte->getNombre() << endl;
+    }
+};
+
+int main() {
+    Todo objeto("Pantalla");
+    objeto.mostrar();
+
+    return 0;
+}
