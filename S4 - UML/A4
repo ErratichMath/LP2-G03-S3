@@ -1,0 +1,36 @@
+#include <iostream>
+using namespace std;
+
+class Trabajador {
+    string nombre;
+    Trabajador* companeros[5];
+    int cantidad;
+public:
+    Trabajador(string n) : nombre(n), cantidad(0) {}
+
+    void agregarCompanero(Trabajador* t) {
+        if (cantidad < 5) {
+            companeros[cantidad++] = t;
+        }
+    }
+
+    void mostrarCompaneros() {
+        cout << "Compañeros de " << nombre << ":\n";
+        for (int i = 0; i < cantidad; i++) {
+            cout << "- " << companeros[i]->nombre << endl;
+        }
+    }
+};
+
+int main() {
+    Trabajador t1("Juan");
+    Trabajador t2("Carlos");
+    Trabajador t3("Lucía");
+
+    t1.agregarCompanero(&t2);
+    t1.agregarCompanero(&t3);
+
+    t1.mostrarCompaneros();
+
+    return 0;
+}
