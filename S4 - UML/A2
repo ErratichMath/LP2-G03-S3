@@ -1,0 +1,61 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Estudiante;
+
+class Curso {
+    string nombre;
+    vector<Estudiante*> estudiantes;
+public:
+    Curso(string n) : nombre(n) {}
+
+    void agregarEstudiante(Estudiante* e) {
+        estudiantes.push_back(e);
+    }
+
+    void mostrarEstudiantes();
+
+    string getNombre() { return nombre; }
+};
+
+class Estudiante {
+    string nombre;
+    vector<Curso*> cursos;
+public:
+    Estudiante(string n) : nombre(n) {}
+
+    void agregarCurso(Curso* c) {
+        cursos.push_back(c);
+    }
+
+    void mostrarCursos() {
+        cout << nombre << " está inscrito en:\n";
+        for (Curso* c : cursos)
+            cout << "- " << c->getNombre() << endl;
+    }
+
+    string getNombre() { return nombre; }
+};
+
+void Curso::mostrarEstudiantes() {
+    cout << "Curso " << nombre << " tiene estudiantes:\n";
+    for (Estudiante* e : estudiantes)
+        cout << "- " << e->getNombre() << endl;
+}
+
+int main() {
+    Curso c1("Programación");
+    Estudiante e1("Pedro"), e2("Lucía");
+
+    c1.agregarEstudiante(&e1);
+    c1.agregarEstudiante(&e2);
+    e1.agregarCurso(&c1);
+    e2.agregarCurso(&c1);
+
+    c1.mostrarEstudiantes();
+    e1.mostrarCursos();
+
+    return 0;
+}
