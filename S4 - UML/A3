@@ -1,0 +1,49 @@
+#include <iostream>
+using namespace std;
+
+class Estudiante {
+    string nombre;
+public:
+    Estudiante(string n) : nombre(n) {}
+    string getNombre() { return nombre; }
+};
+
+class Docente {
+    string nombre;
+public:
+    Docente(string n) : nombre(n) {}
+    string getNombre() { return nombre; }
+};
+
+class Curso {
+    string nombre;
+public:
+    Curso(string n) : nombre(n) {}
+    string getNombre() { return nombre; }
+};
+
+class Asociacion {
+    Estudiante* estudiante;
+    Docente* docente;
+    Curso* curso;
+public:
+    Asociacion(Estudiante* e, Docente* d, Curso* c) :
+        estudiante(e), docente(d), curso(c) {}
+
+    void mostrarRelacion() {
+        cout << estudiante->getNombre() << " - "
+             << docente->getNombre() << " - "
+             << curso->getNombre() << endl;
+    }
+};
+
+int main() {
+    Estudiante e("Ana");
+    Docente d("Profesor Luis");
+    Curso c("Matemáticas");
+
+    Asociacion a(&e, &d, &c);
+    a.mostrarRelacion();
+
+    return 0;
+}
