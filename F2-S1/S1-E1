@@ -1,0 +1,38 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class Producto {
+    string nombre;
+    double precio;
+    double descuento;
+public:
+    Producto() : nombre(""), precio(0), descuento(0) {}
+    Producto& setNombre(const string& n) {
+        nombre = n;
+        return *this;
+    }
+    Producto& setPrecio(double p) {
+        precio=p;
+        return *this;
+    }
+    Producto& setDescuento(double d) {
+        descuento=d;
+        return *this;
+    }
+    double calcularPrecioFinal() {
+        return precio - (precio*descuento/100);
+    }
+};
+int main() {
+    Producto productos[3];
+    productos[0].setNombre("Producto A").setPrecio(500).setDescuento(10);
+    productos[1].setNombre("Producto B").setPrecio(300).setDescuento(5);
+    productos[2].setNombre("Producto C").setPrecio(200).setDescuento(15);
+
+    double total=0;
+    for (int i = 0; i < 3; i++) {
+        total+=productos[i].calcularPrecioFinal();
+    }
+    cout<<"Total acumulado: "<<total<<endl;
+    return 0;
+}
