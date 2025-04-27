@@ -1,0 +1,43 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class FechaRegistro {
+    int dia, mes, anio;
+public:
+    FechaRegistro(int d, int m, int a) : dia(d), mes(m), anio(a) {}
+
+    void mostrarFecha() {
+        cout << "Fecha de Registro: " << dia << "/" << mes << "/" << anio << endl;
+    }
+};
+class Direccion {
+    string calle;
+    string ciudad;
+public:
+    Direccion(string c, string ci) : calle(c), ciudad(ci) {}
+
+    void mostrarDireccion() {
+        cout << "Dirección: " << calle << ", " << ciudad << endl;
+    }
+};
+class Cliente {
+    string nombre;
+    FechaRegistro fechaRegistro;
+    Direccion direccion;
+public:
+    Cliente(string n, FechaRegistro f, Direccion d) : nombre(n), fechaRegistro(f), direccion(d) {}
+
+    void mostrarInfo() {
+        cout << "Cliente: " << nombre << endl;
+        fechaRegistro.mostrarFecha();
+        direccion.mostrarDireccion();
+    }
+};
+int main() {
+    FechaRegistro f(15, 5, 2024);
+    Direccion d("Av. Principal", "Ciudad X");
+    Cliente c("Juan Pérez", f, d);
+    c.mostrarInfo();
+
+    return 0;
+}
