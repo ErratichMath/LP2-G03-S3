@@ -1,0 +1,50 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Habitacion {
+    int numero;
+    string tipo;
+    double precioPorNoche;
+public:
+    Habitacion(int n, string t, double p) : numero(n), tipo(t), precioPorNoche(p) {}
+    double obtenerPrecio() {
+        return precioPorNoche;
+    }
+};
+class ReservaHotel {
+    Habitacion** habitaciones;  
+    int numHabitaciones;
+public:
+    ReservaHotel(int n) : numHabitaciones(n) {
+        habitaciones = new Habitacion*[numHabitaciones];  
+    }
+
+    void agregarHabitacion(int index, int num, string tipo, double precio) {
+        habitaciones[index] = new Habitacion(num, tipo, precio);  
+    }
+
+    double calcularTotalPorNoche() {
+        double total = 0;
+        for (int i = 0; i < numHabitaciones; i++) {
+            total += habitaciones[i]->obtenerPrecio();  
+        }
+        return total;
+    }
+
+    ~ReservaHotel() {
+        for (int i = 0; i < numHabitaciones; i++) {
+            delete habitaciones[i];  
+        }
+        delete[] habitaciones;  
+        cout << "Destructor de ReservaHotel ejecutado\n";
+    }
+};
+int main() {
+    ReservaHotel reserva(3);
+    reserva.agregarHabitacion(0, 101, "Simple", 50);
+    reserva.agregarHabitacion(1, 102, "Doble", 80);
+    reserva.agregarHabitacion(2, 103, "Suite", 120);
+    cout << "Total por noche: " << reserva.calcularTotalPorNoche() << endl;
+    return 0;
+}
