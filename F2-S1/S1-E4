@@ -1,0 +1,36 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class Gerente {
+public:
+    Gerente() {
+        cout << "Constructor Gerente\n";
+    }
+    ~Gerente() {
+        cout << "Destructor Gerente\n";
+    }
+};
+class Direccion {
+public:
+    Direccion() {
+        cout << "Constructor Direccion\n";
+    }
+    ~Direccion() {
+        cout << "Destructor Direccion\n";
+    }
+};
+class Empresa {
+    Gerente gerente;
+    Direccion direccion;
+public:
+    Empresa() : gerente(), direccion() {
+        cout << "Constructor Empresa\n";
+    }
+    ~Empresa() {
+        cout << "Destructor Empresa\n";
+    }
+};
+int main() {
+    Empresa empresa;
+    return 0;
+}
