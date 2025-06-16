@@ -1,0 +1,38 @@
+#include <iostream>
+using namespace std;
+
+class GestorArreglo {
+public:
+    template <class T>
+    void ordenarYMostrar(T arreglo[], int n) {
+        T temp;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (arreglo[i] > arreglo[j]) {
+                    temp = arreglo[i];
+                    arreglo[i] = arreglo[j];
+                    arreglo[j] = temp;
+                }
+            }
+        }
+
+        cout << "Arreglo ordenado: ";
+        for (int i = 0; i < n; i++) {
+            cout << arreglo[i] << " ";
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    int enteros[] = {5, 2, 8, 1, 3};
+    float flotantes[] = {4.5, 2.2, 9.1, 1.1, 3.3};
+    char caracteres[] = {'z', 'b', 'd', 'a', 'c'};
+
+    GestorArreglo gestor;
+    gestor.ordenarYMostrar(enteros, 5);
+    gestor.ordenarYMostrar(flotantes, 5);
+    gestor.ordenarYMostrar(caracteres, 5);
+
+    return 0;
+}
