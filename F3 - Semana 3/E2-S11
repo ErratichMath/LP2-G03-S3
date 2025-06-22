@@ -1,0 +1,29 @@
+#include <iostream>
+#include <stdexcept> 
+using namespace std;
+
+int divide(int numerador, int denominador) {
+    if (denominador == 0) {
+        throw runtime_error("Error: no se puede dividir por cero.");
+    }
+    return numerador / denominador;
+}
+
+int main() {
+    int a, b;
+
+    cout << "Ingrese el numerador: ";
+    cin >> a;
+    cout << "Ingrese el denominador: ";
+    cin >> b;
+
+    try {
+        int resultado = divide(a, b);
+        cout << "Resultado de la división: " << resultado << endl;
+    }
+    catch (runtime_error& error) {
+        cout << error.what() << endl;
+    }
+
+    return 0;
+}
