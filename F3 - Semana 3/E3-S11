@@ -1,0 +1,58 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+class Persona {
+private:
+    string nombre;
+    int edad;
+    string direccion;
+
+public:
+    Persona() = default;
+    Persona(string n, int e, string d) : nombre(n), edad(e), direccion(d) {}
+
+    void setNombre(string n) { nombre = n; }
+    void setEdad(int e) { edad = e; }
+    void setDireccion(string d) { direccion = d; }
+
+    string getNombre() const { return nombre; }
+    int getEdad() const { return edad; }
+    string getDireccion() const { return direccion; }
+
+    void guardarEnArchivo(const string& nombreArchivo) {
+        ofstream archivo(nombreArchivo);
+        if (archivo) {
+            archivo << nombre << endl;
+            archivo << edad << endl;
+            archivo << direccion << endl;
+            archivo.close();
+        }
+    }
+
+    void leerDesdeArchivo(const string& nombreArchivo) {
+        ifstream archivo(nombreArchivo);
+        if (archivo) {
+            getline(archivo, nombre);
+            archivo >> edad;
+            archivo.ignore(); 
+            getline(archivo, direccion);
+            archivo.close();
+        }
+    }
+};
+
+int main() {
+    Persona p1("Ana Morales", 28, "Calle Lima 123");
+    p1.guardarEnArchivo("persona.txt");
+
+    Persona p2;
+    p2.leerDesdeArchivo("persona.txt");
+
+    cout << "Nombre: " << p2.getNombre() << endl;
+    cout << "Edad: " << p2.getEdad() << endl;
+    cout << "Dirección: " << p2.getDireccion() << endl;
+
+    return 0;
+}
