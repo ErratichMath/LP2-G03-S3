@@ -1,0 +1,148 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <limits>
+#include <cctype>
+#include <algorithm>
+
+using namespace std;
+struct Contacto {
+    string nombre;
+    string telefono;
+    string correo;
+};
+map<string, Contacto> agenda;
+
+bool esNumeroValido(const string& telefono) {
+    return all_of(telefono.begin(), telefono.end(), ::isdigit);
+}
+bool esCorreoValido(const string& correo) {
+    return correo.find('@') != string::npos && correo.find('.') != string::npos;
+}
+void agregarContacto() {
+    string nombre, telefono, correo;
+    cout << "Nombre del contacto: ";
+    getline(cin, nombre);
+
+    if (agenda.find(nombre) != agenda.end()) {
+        cout << "Ya existe un contacto con ese nombre.\n";
+        return;
+    }
+
+    do {
+        cout << "Teléfono (solo números): ";
+        getline(cin, telefono);
+        if (!esNumeroValido(telefono)) {
+            cout << "Número inválido. Solo se aceptan dígitos.\n";
+        }
+    } while (!esNumeroValido(telefono));
+
+    do {
+        cout << "Correo electrónico: ";
+        getline(cin, correo);
+        if (!esCorreoValido(correo)) {
+            cout << "Correo inválido. Debe contener '@' y '.'.\n";
+        }
+    } while (!esCorreoValido(correo));
+
+    agenda[nombre] = {nombre, telefono, correo};
+    cout << "Contacto agregado.\n";
+}
+
+void buscarContacto() {
+    string nombre;
+    cout << "Nombre del contacto a buscar: ";
+    getline(cin, nombre);
+
+    auto it = agenda.find(nombre);
+    if (it != agenda.end()) {
+        cout << "Nombre: " << it->second.nombre << '\n';
+        cout << "Teléfono: " << it->second.telefono << '\n';
+        cout << "Correo: " << it->second.correo << '\n';
+    } else {
+        cout << "Contacto no encontrado.\n";
+    }
+}
+
+void actualizarContacto() {
+    string nombre;
+    cout << "Nombre del contacto a actualizar: ";
+    getline(cin, nombre);
+
+    auto it = agenda.find(nombre);
+    if (it == agenda.end()) {
+        cout << "Contacto no encontrado.\n";
+        return;
+    }
+
+    string telefono, correo;
+
+    do {
+        cout << "Nuevo teléfono (solo números): ";
+        getline(cin, telefono);
+        if (!esNumeroValido(telefono)) {
+            cout << "Número inválido. Solo se aceptan dígitos.\n";
+        }
+    } while (!esNumeroValido(telefono));
+
+    do {
+        cout << "Nuevo correo electrónico: ";
+        getline(cin, correo);
+        if (!esCorreoValido(correo)) {
+            cout << "Correo inválido. Debe contener '@' y '.'.\n";
+        }
+    } while (!esCorreoValido(correo));
+
+    it->second.telefono = telefono;
+    it->second.correo = correo;
+    cout << "Contacto actualizado.\n";
+}
+
+void mostrarContactos() {
+    if (agenda.empty()) {
+        cout << "La agenda está vacía.\n";
+        return;
+    }
+
+    cout << "Lista de contactos (orden alfabético):\n";
+    for (const auto& par : agenda) {
+        cout << "\nNombre: " << par.second.nombre << '\n';
+        cout << "Teléfono: " << par.second.telefono << '\n';
+        cout << "Correo: " << par.second.correo << '\n';
+    }
+}
+
+int main() {
+    int opcion;
+
+    do {
+        cout << "\n1. Agregar contacto\n";
+        cout << "2. Buscar contacto\n";
+        cout << "3. Actualizar contacto\n";
+        cout << "4. Mostrar todos los contactos\n";
+        cout << "5. Salir\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Opción inválida. Introduzca un número del 1 al 5.\n";
+            continue;
+        }
+
+        cin.ignore();
+
+        switch (opcion) {
+            case 1: agregarContacto(); break;
+            case 2: buscarContacto(); break;
+            case 3: actualizarContacto(); break;
+            case 4: mostrarContactos(); break;
+            case 5: cout << "Saliendo...\n"; break;
+            default: cout << "Opción inválida. Introduzca un número del 1 al 5.\n";
+        }
+
+    } while (opcion != 5);
+
+    return 0;
+}
