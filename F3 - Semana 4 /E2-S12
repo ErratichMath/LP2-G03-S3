@@ -1,0 +1,153 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <set>
+#include <vector>
+#include <limits>
+#include <cctype>
+
+using namespace std;
+
+struct Evento {
+    string nombre;
+    string fecha;
+    set<string> asistentes;
+};
+
+map<string, Evento> eventos;
+bool esFechaValida(const string& fecha) {
+    if (fecha.length() != 8) return false;
+    for (char c : fecha) {
+        if (!isdigit(c)) return false;
+    }
+    return fecha >= "20250630"; 
+}
+bool existeEventoMismoNombreYFecha(const string& nombre, const string& fecha) {
+    auto it = eventos.find(nombre);
+    return it != eventos.end() && it->second.fecha == fecha;
+}
+
+void agregarEvento() {
+    string nombre, fecha;
+
+    do {
+        cout << "Fecha (yyyymmdd): ";
+        getline(cin, fecha);
+        if (!esFechaValida(fecha)) {
+            cout << "Fecha inválida. Use 8 números (ej: 20250701) y no antes de 20250630.\n";
+        }
+    } while (!esFechaValida(fecha));
+
+    cout << "Nombre del evento: ";
+    getline(cin, nombre);
+
+    if (existeEventoMismoNombreYFecha(nombre, fecha)) {
+        cout << "Ya hay un evento con ese nombre en esa fecha. Cambie el nombre.\n";
+        return;
+    }
+
+    eventos[nombre] = {nombre, fecha, {}};
+    cout << "Evento agregado.\n";
+}
+
+void agregarAsistente() {
+    string nombreEvento, asistente;
+    cout << "Nombre del evento: ";
+    getline(cin, nombreEvento);
+    if (eventos.find(nombreEvento) == eventos.end()) {
+        cout << "Evento no encontrado.\n";
+        return;
+    }
+    cout << "Nombre del asistente: ";
+    getline(cin, asistente);
+    eventos[nombreEvento].asistentes.insert(asistente);
+    cout << "Asistente agregado.\n";
+}
+
+void mostrarAsistentes(const string& nombreEvento) {
+    if (eventos.find(nombreEvento) == eventos.end()) {
+        cout << "Evento no encontrado.\n";
+        return;
+    }
+    cout << "Asistentes (orden alfabético):\n";
+    for (const auto& asistente : eventos[nombreEvento].asistentes) {
+        cout << "- " << asistente << '\n';
+    }
+}
+
+void buscarPorFecha() {
+    string fecha;
+
+    do {
+        cout << "Fecha a buscar (yyyymmdd): ";
+        getline(cin, fecha);
+        if (!esFechaValida(fecha)) {
+            cout << "Fecha inválida. Use 8 números (ej: 20250701) y no antes de 20250630.\n";
+        }
+    } while (!esFechaValida(fecha));
+
+    vector<string> encontrados;
+    for (const auto& par : eventos) {
+        if (par.second.fecha == fecha) {
+            encontrados.push_back(par.second.nombre);
+        }
+    }
+
+    if (encontrados.empty()) {
+        cout << "No se encontraron eventos en esa fecha.\n";
+    } else if (encontrados.size() == 1) {
+        cout << "Evento: " << encontrados[0] << '\n';
+        mostrarAsistentes(encontrados[0]);
+    } else {
+        cout << "Hay múltiples eventos en esa fecha:\n";
+        for (const auto& nombre : encontrados) {
+            cout << "- " << nombre << '\n';
+        }
+        cout << "Indique el nombre del evento que desea ver: ";
+        string seleccionado;
+        getline(cin, seleccionado);
+        if (eventos.find(seleccionado) != eventos.end() && eventos[seleccionado].fecha == fecha) {
+            mostrarAsistentes(seleccionado);
+        } else {
+            cout << "Nombre incorrecto o no coincide con esa fecha.\n";
+        }
+    }
+}
+
+int main() {
+    int opcion;
+    do {
+        cout << "\n1. Agregar evento\n";
+        cout << "2. Agregar asistente a evento\n";
+        cout << "3. Mostrar asistentes de evento\n";
+        cout << "4. Buscar eventos por fecha\n";
+        cout << "5. Salir\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Opción inválida. Introduzca un número entre 1 y 5.\n";
+            continue;
+        }
+
+        cin.ignore();
+
+        switch (opcion) {
+            case 1: agregarEvento(); break;
+            case 2: agregarAsistente(); break;
+            case 3: {
+                string nombre;
+                cout << "Nombre del evento: ";
+                getline(cin, nombre);
+                mostrarAsistentes(nombre);
+                break;
+            }
+            case 4: buscarPorFecha(); break;
+            case 5: cout << "Saliendo...\n"; break;
+            default: cout << "Opción inválida. Introduzca un número entre 1 y 5.\n";
+        }
+    } while (opcion != 5);
+    return 0;
+}
