@@ -1,0 +1,329 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <stdexcept>
+#include <sstream>
+
+using namespace std;
+
+template<typename T>
+void mostrarVector(const vector<T>& vec) {
+    for (const auto& v : vec) {
+        cout << v << endl;
+    }
+}
+
+class MostrarCarrito {
+public:
+    virtual void mostrar(const map<int, class Producto>& inventario) = 0;
+    virtual ~MostrarCarrito() {}
+};
+
+class Producto {
+public:
+    int id;
+    string nombre;
+    double precio;
+    int stock;
+
+    Producto(int i = 0, string n = "", double p = 0.0, int s = 0) : id(i), nombre(n), precio(p), stock(s) {}
+
+    friend ostream& operator<<(ostream& os, const Producto& p) {
+        os << p.id << ". " << p.nombre << " - S/" << p.precio << " - Stock: " << p.stock;
+        return os;
+    }
+};
+
+class Factura {
+public:
+    string codigo;
+    string nombreCliente;
+    string tipoCliente;
+    map<int, int> items;
+    double total;
+
+    Factura(string c, string nom, string tipo, map<int, int> its, double t) : codigo(c), nombreCliente(nom), tipoCliente(tipo), items(its), total(t) {}
+
+    void mostrar(const map<int, Producto>& inventario) {
+        cout << "\nFactura: " << codigo << endl;
+        cout << "Cliente: " << nombreCliente << " (" << tipoCliente << ")\n";
+        for (auto& item : items) {
+            int id = item.first;
+            int cantidad = item.second;
+            cout << " - " << inventario.at(id).nombre << " x" << cantidad << " - S/" << inventario.at(id).precio << "\n";
+        }
+        cout << "Total: S/" << total << "\n";
+    }
+};
+
+class Carrito : public MostrarCarrito {
+public:
+    map<int, int> items;
+
+    void agregarProducto(int id) { items[id]++; }
+    void quitarProducto(int id) {
+        if (items.count(id)) {
+            items[id]--;
+            if (items[id] <= 0) items.erase(id);
+        }
+    }
+    void vaciar() { items.clear(); }
+    void mostrar(const map<int, Producto>& inventario) override {
+        if (items.empty()) {
+            cout << "Carrito vacio.\n";
+            return;
+        }
+        for (auto& item : items) {
+            int id = item.first;
+            int cantidad = item.second;
+            cout << inventario.at(id).nombre << " x" << cantidad << " - S/" << inventario.at(id).precio << " cada uno\n";
+        }
+    }
+};
+
+class Usuario {
+public:
+    string nombre, dni, celular, tipo;
+    Carrito carrito;
+    map<int, int> historial;
+    vector<Factura> facturas;
+
+    Usuario(string nom = "", string d = "", string c = "", string t = "") : nombre(nom), dni(d), celular(c), tipo(t) {}
+    virtual double aplicarDescuento(double total) = 0;
+    virtual void mostrarDatos() {
+        cout << "\n--- Datos del usuario ---\n";
+        cout << "Nombre: " << nombre << "\nDNI: " << dni << "\nCelular: " << celular << "\nTipo: " << tipo << endl;
+    }
+    virtual bool esAdmin() { return false; }
+    virtual ~Usuario() {}
+};
+
+class ClienteRegular : public Usuario {
+public:
+    ClienteRegular(string nom, string d, string c) : Usuario(nom, d, c, "regular") {}
+    double aplicarDescuento(double total) override { return total; }
+};
+
+class ClientePremium : public Usuario {
+public:
+    ClientePremium(string nom, string d, string c) : Usuario(nom, d, c, "premium") {}
+    double aplicarDescuento(double total) override { return total * 0.9; }
+};
+
+class Administrador : public Usuario {
+public:
+    Administrador(string nom, string d, string c) : Usuario(nom, d, c, "admin") {}
+    double aplicarDescuento(double total) override { return total * 0.8; }
+    bool esAdmin() override { return true; }
+};
+
+class Sistema {
+public:
+    map<string, Usuario*> usuarios;
+    map<int, Producto> inventario;
+    int nextId = 1;
+    int contadorFacturas = 1;
+
+    ~Sistema() {
+        for (auto& par : usuarios) delete par.second;
+    }
+
+    void registrarUsuario(string nombre, string dni, string celular, string tipo) {
+        if (usuarios.count(dni) == 0) {
+            if (tipo == "admin") usuarios[dni] = new Administrador(nombre, dni, celular);
+            else if (tipo == "premium") usuarios[dni] = new ClientePremium(nombre, dni, celular);
+            else usuarios[dni] = new ClienteRegular(nombre, dni, celular);
+        }
+    }
+
+    Usuario* iniciarSesion(string dni) {
+        if (usuarios.count(dni)) return usuarios[dni];
+        return nullptr;
+    }
+
+    void agregarProductoInventario(string nombre, double precio, int stock) {
+        inventario[nextId] = Producto(nextId, nombre, precio, stock);
+        nextId++;
+    }
+
+    void actualizarInventario(int id, int nuevoStock, double nuevoPrecio) {
+        if (inventario.count(id)) {
+            inventario[id].stock = nuevoStock;
+            inventario[id].precio = nuevoPrecio;
+        }
+    }
+
+    void guardarInventarioArchivo(const string& filename) {
+        ofstream file(filename);
+        if (!file) throw runtime_error("Error al guardar archivo");
+        for (auto& par : inventario) {
+            file << par.second.id << "," << par.second.nombre << "," << par.second.precio << "," << par.second.stock << endl;
+        }
+        file.close();
+    }
+
+    void mostrarInventario() {
+        for (auto& par : inventario) {
+            cout << par.second << endl;
+        }
+    }
+
+    void confirmarCompra(Usuario* u) {
+        double total = 0;
+        for (auto& item : u->carrito.items) {
+            int id = item.first;
+            int cantidad = item.second;
+            if (inventario.count(id) && inventario[id].stock >= cantidad) {
+                total += inventario[id].precio * cantidad;
+            } else {
+                cout << "Producto ID " << id << " sin stock suficiente.\n";
+                return;
+            }
+        }
+        total = u->aplicarDescuento(total);
+        for (auto& item : u->carrito.items) {
+            int id = item.first;
+            int cantidad = item.second;
+            inventario[id].stock -= cantidad;
+            u->historial[id] += cantidad;
+        }
+        stringstream cod;
+        cod << "F001-" << contadorFacturas++;
+        u->facturas.push_back(Factura(cod.str(), u->nombre, u->tipo, u->carrito.items, total));
+        u->carrito.vaciar();
+        cout << "Total a pagar: S/" << total << endl;
+    }
+
+    void mostrarUsuarios() {
+        for (auto& par : usuarios) {
+            if (par.second->tipo != "admin") {
+                par.second->mostrarDatos();
+            }
+        }
+    }
+
+    void cambiarTipoUsuario(string dni, string nuevoTipo) {
+        if (!usuarios.count(dni)) return;
+        Usuario* viejo = usuarios[dni];
+        string nombre = viejo->nombre;
+        string celular = viejo->celular;
+        delete viejo;
+
+        if (nuevoTipo == "premium") usuarios[dni] = new ClientePremium(nombre, dni, celular);
+        else usuarios[dni] = new ClienteRegular(nombre, dni, celular);
+    }
+
+    void mostrarFacturasUsuario(string dni) {
+        if (!usuarios.count(dni)) return;
+        for (auto& f : usuarios[dni]->facturas) {
+            f.mostrar(inventario);
+        }
+    }
+};
+
+bool validarDNI(const string& dni) {
+    return dni.length() == 8 && all_of(dni.begin(), dni.end(), ::isdigit);
+}
+
+int main() {
+    Sistema sistema;
+    sistema.registrarUsuario("Admin", "2023220411", "000000000", "admin");
+    sistema.agregarProductoInventario("Laptop", 3000, 10);
+    sistema.agregarProductoInventario("Mouse", 50, 100);
+
+    Usuario* u = nullptr;
+
+    try {
+        while (true) {
+            cout << "\n--- Iniciar Sesion ---\n";
+            string tipo;
+            cout << "Tipo de usuario (regular/premium/admin) o 'salir': ";
+            cin >> tipo;
+            if (tipo == "salir") break;
+
+            if (tipo == "admin") {
+                string codigo, password;
+                cout << "Codigo de trabajo (10 digitos): "; cin >> codigo;
+                if (codigo != "2023220411") {
+                    cout << "Codigo incorrecto.\n";
+                    continue;
+                }
+                cout << "Contraseña: "; cin >> password;
+                if (password != "4dm1n") {
+                    cout << "Contraseña incorrecta.\n";
+                    continue;
+                }
+                u = sistema.iniciarSesion(codigo);
+            } else {
+                string dni;
+                cout << "Ingrese DNI: "; cin >> dni;
+                if (!validarDNI(dni)) throw invalid_argument("DNI invalido");
+
+                u = sistema.iniciarSesion(dni);
+                if (!u) {
+                    string nombre, celular;
+                    cout << "Nombre: "; cin >> nombre;
+                    cout << "Celular: "; cin >> celular;
+                    sistema.registrarUsuario(nombre, dni, celular, tipo);
+                    u = sistema.iniciarSesion(dni);
+                }
+            }
+
+            u->mostrarDatos();
+            int opcion;
+            do {
+                cout << "\n1. Ver productos\n2. Agregar al carrito\n3. Quitar producto\n4. Ver carrito\n5. Confirmar compra\n";
+                if (u->esAdmin()) cout << "6. Agregar producto\n7. Actualizar producto\n8. Guardar en archivo\n9. Ver usuarios\n10. Cambiar tipo de usuario\n11. Ver facturas de un usuario\n";
+                cout << "0. Salir\nOpcion: ";
+                cin >> opcion;
+
+                if (opcion == 1) sistema.mostrarInventario();
+                else if (opcion == 2) {
+                    int id; cout << "ID: "; cin >> id;
+                    u->carrito.agregarProducto(id);
+                } else if (opcion == 3) {
+                    int id; cout << "ID: "; cin >> id;
+                    u->carrito.quitarProducto(id);
+                } else if (opcion == 4) {
+                    u->carrito.mostrar(sistema.inventario);
+                } else if (opcion == 5) {
+                    sistema.confirmarCompra(u);
+                } else if (opcion == 6 && u->esAdmin()) {
+                    string nom; double precio; int stock;
+                    cout << "Nombre: "; cin >> nom;
+                    cout << "Precio: "; cin >> precio;
+                    cout << "Stock: "; cin >> stock;
+                    sistema.agregarProductoInventario(nom, precio, stock);
+                } else if (opcion == 7 && u->esAdmin()) {
+                    int id; double precio; int stock;
+                    cout << "ID: "; cin >> id;
+                    cout << "Nuevo Precio: "; cin >> precio;
+                    cout << "Nuevo Stock: "; cin >> stock;
+                    sistema.actualizarInventario(id, stock, precio);
+                } else if (opcion == 8 && u->esAdmin()) {
+                    sistema.guardarInventarioArchivo("inventario.csv");
+                    cout << "Guardado en archivo.\n";
+                } else if (opcion == 9 && u->esAdmin()) {
+                    sistema.mostrarUsuarios();
+                } else if (opcion == 10 && u->esAdmin()) {
+                    string dniCambio, nuevoTipo;
+                    cout << "DNI del usuario a modificar: "; cin >> dniCambio;
+                    cout << "Nuevo tipo (regular/premium): "; cin >> nuevoTipo;
+                    sistema.cambiarTipoUsuario(dniCambio, nuevoTipo);
+                    cout << "Tipo actualizado.\n";
+                } else if (opcion == 11 && u->esAdmin()) {
+                    string dniVer;
+                    cout << "DNI del usuario: "; cin >> dniVer;
+                    sistema.mostrarFacturasUsuario(dniVer);
+                }
+            } while (opcion != 0);
+        }
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
